@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        #product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start; /* จัดเรียงให้มีช่องว่างระหว่างการ์ด */
+            gap: 15px; /* เพิ่มช่องว่างระหว่างการ์ด */
+            margin: 0; /* ลบ margin ของ container */
+        }
+        .product {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: calc(50% - 15px);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 15px;
+        }
+        /* Media Query สำหรับหน้าจอที่กว้างขึ้น */
+        @media (min-width: 768px) {
+            .product {
+                width: calc(33.33% - 20px); /* แสดง 3 คอลัมน์ */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .product {
+                width: calc(25% - 150px); /* แสดง 4 คอลัมน์ */
+            }
+        }
+
+        .product h3 {
+            margin: 0; /* ลบ margin ของ h3 */
+            overflow: hidden; /* ป้องกันการล้น */
+            text-overflow: ellipsis; /* เพิ่ม '...' หากข้อความยาวเกิน */
+            white-space: nowrap; /* ทำให้ข้อความไม่เปลี่ยนบรรทัด */
+        }
+
+        .product button {
+            margin-top: auto; /* ให้ปุ่มอยู่ด้านล่าง */
+        }
+
+        .product:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .product {
+                width: calc(33.33% - 10px); /* 3 การ์ดต่อแถว */
+            }
+        }
+
+        @media (max-width: 800px) {
+            .product {
+                width: calc(50% - 10px); /* 2 การ์ดต่อแถว */
+            }
+        }
+
+        @media (max-width: 500px) {
+            .product {
+                width: 100%; /* 1 การ์ดต่อแถว */
+            }
+        }
+        .product-image {
+    display: flex;               /* ใช้ Flexbox */
+    justify-content: center;     /* จัดกลางแนวนอน */
+    align-items: center;         /* จัดกลางแนวตั้ง */
+    width: 100%;
+    height: auto;                /* ปรับให้สูงอัตโนมัติเพื่อรักษาสัดส่วน */
+    border-radius: 15px;
+    max-height: 250px; 
+    max-width: 250px;
+    margin: 0 auto;             /* จัดกลางรูปภาพ */
+    margin-bottom: 10px;
+}
+
+
+        .cart, form, .orders {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        input[type="text"], input[type="email"], input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        .navbar {
+            background-color: #45a049; /* สีพื้นหลัง */
+            height: 60px;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* เปลี่ยนสีตัวอักษร */
+            font-size: 25px;
+            height: auto;
+            margin-top: auto;
+        }
+        .navbar-nav {
+            margin-left: auto; /* ย้าย Navbar ไปทางด้านขวา */
+        }
+        .nav-link {
+            margin-left: 20px; /* ระยะห่างระหว่างเมนู */
+        }
+        .nav-link:hover {
+            color: #ffc107 !important; /* เปลี่ยนสีเมื่อเลื่อนเมาส์ */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand">Co-op Project</a>
+        <a class="nav-link" href="index.html">หน้าหลัก</a>
+        <a class="nav-link" href="add-product.html">เพิ่มสินค้า</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto"> <!-- ใช้ ml-auto เพื่อให้แนบชิดด้านขวา -->
+            </ul>
+        </div>
+    </nav>
+    <div id="product-list"></div>
+    
+    <h2>Your Cart</h2>
+    <div class="cart" id="cart-items"></div>
+    <h3>Total: $<span id="total-price">0</span></h3>
+    
+    <h2>Checkout</h2>
+    <form id="order-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required maxlength="50">
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+
+        <!-- เพิ่มฟิลด์โค้ดส่วนลด -->
+        <label for="promo-code">Promo Code:</label>
+        <input type="text" id="promo-code" name="promo-code">
+        <button type="button" id="apply-promo">Apply Promo Code</button>
+        <p id="discount-info"></p>
+
+        <button type="submit">Submit Order</button>
+    </form>
+
+    <h2>Order History</h2>
+    <button id="view-orders">View Orders</button>
+    <div class="orders" id="order-list"></div>
+
+    <h2>Add New Product</h2>
+    <button id="add-product-button">Go to Add Product Page</button>
+
+    <script>
+        const products = [];
+        let cart = [];
+        let discount = 0;
+    
+        const promoCodes = {
+            "PromoCSdis": 10, // โค้ด PromoCSdis ให้ส่วนลด 10%
+        };
+        function displayProducts() {
+    const productList = document.getElementById('product-list');
+    productList.innerHTML = ''; 
+
+    products.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.className = 'product';
+        productDiv.innerHTML = `
+            <img src="${product.imagePath}" alt="${product.name}" class="product-image">
+            <h3>${product.name}</h3>
+            <p>Price: $${product.price}</p>
+            <button onclick="addToCart(${product.id})">Add to Cart</button>
+        `;
+        productList.appendChild(productDiv);
+    });
+}
+
+    
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingProductIndex = cart.findIndex(item => item.id === productId);
+            if (existingProductIndex > -1) {
+                cart[existingProductIndex].quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            updateCart();
+        }
+    
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const totalPriceElem = document.getElementById('total-price');
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                cartItems.innerHTML += `<p>${item.name} - $${item.price} x ${item.quantity} = $${itemTotal}</p>`;
+                total += itemTotal;
+            });
+            total = total - (total * discount / 100); // หักส่วนลด
+            totalPriceElem.innerText = total.toFixed(2);
+        }
+    
+        // ฟังก์ชันตรวจสอบโค้ดส่วนลด
+        document.getElementById('apply-promo').addEventListener('click', function () {
+            const promoCodeInput = document.getElementById('promo-code').value;
+            const discountInfo = document.getElementById('discount-info');
+            
+            if (promoCodes[promoCodeInput]) {
+                discount = promoCodes[promoCodeInput];
+                discountInfo.textContent = `Promo applied: ${discount}% off`;
+            } else {
+                discount = 0;
+                discountInfo.textContent = 'Invalid promo code';
+            }
+            updateCart(); // อัปเดตราคาใหม่หลังหักส่วนลด
+        });
+    
+        // การส่งคำสั่งซื้อ
+        document.getElementById('order-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+    
+            // ตรวจสอบว่ามีสินค้าในตะกร้าก่อนส่งคำสั่งซื้อ
+            if (cart.length === 0) {
+                alert('Your cart is empty. Please add items to your cart before placing an order.');
+                return;
+            }
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            
+            const order = {
+                name,
+                email,
+                address,
+                cart,
+                total: document.getElementById('total-price').innerText,
+                discountApplied: discount > 0 ? `${discount}%` : 'None'
+            };
+    
+            fetch('http://localhost:3000/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(order)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Order placed successfully!');
+                cart = [];
+                discount = 0;  // รีเซ็ตส่วนลด
+                document.getElementById('promo-code').value = '';  // ล้างฟิลด์โค้ดส่วนลด
+                document.getElementById('discount-info').textContent = '';
+                updateCart();  // อัปเดตตะกร้าใหม่หลังจากสั่งซื้อ
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    
+        document.getElementById('view-orders').addEventListener('click', function () {
+            fetch('http://localhost:3000/orders')
+                .then(response => response.json())
+                .then(orders => {
+                    const orderList = document.getElementById('order-list');
+                    orderList.innerHTML = ''; 
+                    orders.forEach((order, index) => {
+                        orderList.innerHTML += `
+                            <div>
+                                <h4>Order #${index + 1}</h4>
+                                <p>Name: ${order.name}</p>
+                                <p>Email: ${order.email}</p>
+                                <p>Address: ${order.address}</p>
+                                <p>Total: $${order.total}</p>
+                                <p>Discount: ${order.discountApplied}</p>
+                            </div>
+                        `;
+                    });
+                });
+        });
+    
+        // จำลองข้อมูลผลิตภัณฑ์
+        fetch('http://localhost:3000/products')
+            .then(response => response.json())
+            .then(data => {
+                products.push(...data);
+                displayProducts();
+            });
+    
+        // ไปยังหน้าสำหรับเพิ่มผลิตภัณฑ์
+        document.getElementById('add-product-button').addEventListener('click', function () {
+            window.location.href = 'add-product.html'; // ลิงก์ไปยังหน้าสำหรับเพิ่มผลิตภัณฑ์
+        });
+    
+        // ฟังก์ชันในการอัปเดตตะกร้าและตรวจสอบสถานะของปุ่ม submit
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const totalPriceElem = document.getElementById('total-price');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            cartItems.innerHTML = '';
+            let total = 0;
+            
+            // เช็คว่าตะกร้ามีสินค้าอยู่หรือไม่
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p>Your cart is empty</p>';
+                totalPriceElem.innerText = '0.00';
+                submitButton.disabled = true;  // ปิดการใช้งานปุ่ม submit
+            } else {
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    cartItems.innerHTML += `<p>${item.name} - $${item.price} x ${item.quantity} = $${itemTotal}</p>`;
+                    total += itemTotal;
+                });
+                
+                total = total - (total * discount / 100);  // หักลบส่วนลด
+                totalPriceElem.innerText = total.toFixed(2);
+                submitButton.disabled = false;  // เปิดการใช้งานปุ่ม submit เมื่อมีสินค้าในตะกร้า
+            }
+        }
+    
+        // ฟังก์ชันเพิ่มสินค้าในตะกร้า
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingProductIndex = cart.findIndex(item => item.id === productId);
+            
+            if (existingProductIndex > -1) {
+                cart[existingProductIndex].quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
+            updateCart();  // เรียกใช้ฟังก์ชันเพื่ออัปเดตตะกร้าและตรวจสอบปุ่ม submit
+        }
+    
+        // ฟังก์ชันตรวจสอบโค้ดส่วนลด
+        document.getElementById('apply-promo').addEventListener('click', function () {
+            const promoCodeInput = document.getElementById('promo-code').value;
+            const discountInfo = document.getElementById('discount-info');
+            
+            if (promoCodes[promoCodeInput]) {
+                discount = promoCodes[promoCodeInput];
+                discountInfo.textContent = `Promo applied: ${discount}% off`;
+            } else {
+                discount = 0;
+                discountInfo.textContent = 'Invalid promo code';
+            }
+            
+            updateCart();  // อัปเดตราคาใหม่หลังหักส่วนลด
+        });
+        
+        // เปลี่ยนหน้าเมื่อคลิกปุ่ม
+        document.getElementById('add-product-button').addEventListener('click', function () {
+            window.location.href = 'add-product.html'; // เปลี่ยนไปยังหน้า add-product.html
+        });
+    </script>
+    
+</body>
+</html>
